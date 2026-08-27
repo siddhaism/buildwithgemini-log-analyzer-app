@@ -1,7 +1,69 @@
-# log-analyzer-agent
+# 3-Sensor IoT Monitoring & Agent Action System
 
-Simple ReAct agent
-Agent generated with `agents-cli` version `1.3.1`
+An autonomous AI Agent built with the **Google Agent Development Kit (ADK)** Python SDK, integrated with a **Native Firestore** incident backend, real-time periodic **3-Sensor Telemetry Engine**, and a dynamic **Glassmorphic Web UI Dashboard** with flashing alert flags.
+
+---
+
+## 🏗️ System Architecture Diagram
+
+```mermaid
+flowchart TD
+    subgraph IoT_Sensors["📡 3 Periodic IoT Sensors"]
+        S1["🌡️ Sensor 1: Temperature<br/>Threshold: ≥ 80.0°F"]
+        S2["💧 Sensor 2: Humidity<br/>Threshold: ≥ 40.0%"]
+        S3["💨 Sensor 3: Air Quality<br/>Threshold: Poor"]
+    end
+
+    subgraph Web_Dashboard["🎨 Real-time UI Dashboard (FastAPI & Cloud Run)"]
+        UI["🖥️ Glassmorphic Dashboard<br/>(http://127.0.0.1:8080/dashboard)"]
+        FlashingFlags["🚨 Keyframe CSS Flashing Flags<br/>(Red / Amber / Purple Alert Pulse)"]
+        LogFeed["📋 Live Telemetry Log Stream<br/>(Auto-refreshes 3s)"]
+        AgentChat["💬 Embedded ADK Agent Interface"]
+    end
+
+    subgraph ADK_Agent["🤖 Google ADK Reasoning Engine"]
+        AgentLoop["🔄 ADK Agent Core<br/>(app/agent.py)"]
+        TelemetryTool["⚙️ generate_sensor_telemetry()"]
+        EvaluateTool["⚙️ evaluate_sensor_thresholds()"]
+        IncidentTool["⚙️ fetch_incidents_from_db()"]
+    end
+
+    subgraph GCP_Cloud["☁️ Google Cloud Platform (qwiklabs-gcp-03-d36c5051a70a)"]
+        Firestore[("🔥 Google Cloud Firestore<br/>Collection: 'incidents'")]
+        AgentRuntime["🚀 Vertex AI Agent Engine<br/>(us-west1 & us-east1)"]
+        CloudRun["🌐 Google Cloud Run<br/>(sensor-dashboard)"]
+    end
+
+    %% Flow connections
+    S1 --> TelemetryTool
+    S2 --> TelemetryTool
+    S3 --> TelemetryTool
+
+    TelemetryTool --> EvaluateTool
+    EvaluateTool -- "Breach Detected (Temp/Humid/Air)" --> FlashingFlags
+    EvaluateTool -- "Breach Detected (Temp/Humid/Air)" --> LogFeed
+    EvaluateTool -- "Log Incident Document" --> Firestore
+
+    UI --> AgentChat
+    AgentChat <--> AgentLoop
+    AgentLoop <--> Firestore
+    AgentLoop <--> AgentRuntime
+    CloudRun --> UI
+```
+
+---
+
+## 🌟 Key Features
+
+* **3 Periodic IoT Telemetry Sensors**:
+  * **Sensor 1 (Temperature)**: Generates random Fahrenheit readings ($\ge 80.0^\circ\text{F}$ raises Red Alert Flag).
+  * **Sensor 2 (Humidity)**: Generates random relative humidity percentages ($\ge 40.0\%$ raises Amber Alert Flag).
+  * **Sensor 3 (Air Quality)**: Evaluates Air Quality status (`Poor` status raises Purple Alert Flag).
+* **Automatic Firestore Incident Persistence**: Every threshold breach automatically logs a structured document to the native Firestore `incidents` collection on GCP project `qwiklabs-gcp-03-d36c5051a70a`.
+* **Dynamic Visual Web Dashboard**: Real-time CSS `@keyframes` pulse animations, 3-second auto-updating telemetry feed, and embedded ADK Agent Assistant chat interface.
+* **Dual Multi-Region Deployment**: Deployed to both **Google Cloud Run** and **Vertex AI Agent Engine** in `us-west1` and `us-east1`.
+
+---
 
 ## Project Structure
 
